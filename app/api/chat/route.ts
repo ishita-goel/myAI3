@@ -7,6 +7,7 @@ import { readNotebookLecture } from './tools/read-notebook-lecture';
 import { readSlideLecture } from './tools/read-slide-lecture';
 import { readSyllabus } from './tools/read-syllabus';
 import { readAssignment } from './tools/read-assignment';
+import { readAssignedReading } from './tools/read-assigned-reading';
 
 export const maxDuration = 30;
 export async function POST(req: Request) {
@@ -22,8 +23,9 @@ export async function POST(req: Request) {
             readSlideLecture,
             readSyllabus,
             readAssignment,
+            readAssignedReading,
         },
-        stopWhen: stepCountIs(5),
+        stopWhen: stepCountIs(10),
         providerOptions: {
             openai: {
                 reasoningSummary: 'auto',

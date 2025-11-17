@@ -21,6 +21,7 @@ export function AssistantMessage({ message, status, isLastMessage, durations, on
                         case "tool-readSlideLecture":
                         case "tool-readSyllabus":
                         case "tool-readAssignment":
+                        case "tool-readAssignedReading":
                             switch (part.state) {
                                 case "output-available":
                                     return <ToolResult key={`${message.id}-${i}`} part={part as unknown as ToolResultPart} />;

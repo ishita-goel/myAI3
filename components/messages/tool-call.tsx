@@ -53,6 +53,21 @@ function formatReadNotebookLectureArgs(input: unknown): string {
     }
 }
 
+function formatReadAssignedReadingArgs(input: unknown): string {
+    try {
+        if (typeof input !== 'object' || input === null) {
+            return "";
+        }
+        const args = input as Record<string, unknown>;
+        if (args.class_no) {
+            return `Class ${args.class_no}`;
+        }
+        return "";
+    } catch {
+        return "";
+    }
+}
+
 const TOOL_DISPLAY_MAP: Record<string, ToolDisplay> = {
     readNotebookLecture: {
         call_label: "Reading lecture notebook",
@@ -79,6 +94,13 @@ const TOOL_DISPLAY_MAP: Record<string, ToolDisplay> = {
         call_icon: <Book className="w-4 h-4" />,
         result_label: "Read assignment",
         result_icon: <Book className="w-4 h-4" />,
+    },
+    readAssignedReading: {
+        call_label: "Reading assigned reading",
+        call_icon: <Book className="w-4 h-4" />,
+        result_label: "Read assigned reading",
+        result_icon: <Book className="w-4 h-4" />,
+        formatArgs: formatReadAssignedReadingArgs,
     },
     webSearch: {
         call_label: "Searching the web",

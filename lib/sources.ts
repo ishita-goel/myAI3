@@ -113,6 +113,8 @@ export function getContextFromSource(
     return `
     <excerpt-from-source>
     # Source ${citationNumber}
+    ## Source Type
+    ${source.source_type}
     ## Source Description
     ${source.source_description}
     ## Source Citation

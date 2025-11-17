@@ -5,6 +5,7 @@ export const filterTypeSchema = z.enum([
     "lecture_notebook",
     "syllabus",
     "assignment",
+    "assigned_reading",
 ]);
 export type FilterType = z.infer<typeof filterTypeSchema>;
 
