@@ -138,33 +138,37 @@ export default function Chat() {
 
   return (
     <div className="flex h-screen items-center justify-center font-sans dark:bg-black">
-      <main className="flex w-full flex-col dark:bg-black h-screen">
-        <ChatHeader>
-          <ChatHeaderBlock />
-          <ChatHeaderBlock className="justify-center items-center">
-            <Avatar
-              className="size-8 ring-1 ring-primary"
-            >
-              <AvatarImage src="/bit.png" />
-              <AvatarFallback>
-                <Image src="/bit.png" alt="Logo" width={36} height={36} />
-              </AvatarFallback>
-            </Avatar>
-            <p className="tracking-tight">Chat with {AI_NAME}</p>
-          </ChatHeaderBlock>
-          <ChatHeaderBlock className="justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              className="cursor-pointer"
-              onClick={clearChat}
-            >
-              <Plus className="size-4" />
-              {CLEAR_CHAT_TEXT}
-            </Button>
-          </ChatHeaderBlock>
-        </ChatHeader>
-        <div className="flex-1 overflow-y-auto px-5 py-4 w-full">
+      <main className="w-full dark:bg-black h-screen relative">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-linear-to-b from-background to-transparent dark:bg-black overflow-visible">
+          <div className="relative overflow-visible">
+            <ChatHeader>
+              <ChatHeaderBlock />
+              <ChatHeaderBlock className="justify-center items-center">
+                <Avatar
+                  className="size-8 ring-1 ring-primary"
+                >
+                  <AvatarImage src="/bit.png" />
+                  <AvatarFallback>
+                    <Image src="/bit.png" alt="Logo" width={36} height={36} />
+                  </AvatarFallback>
+                </Avatar>
+                <p className="tracking-tight">Chat with {AI_NAME}</p>
+              </ChatHeaderBlock>
+              <ChatHeaderBlock className="justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer"
+                  onClick={clearChat}
+                >
+                  <Plus className="size-4" />
+                  {CLEAR_CHAT_TEXT}
+                </Button>
+              </ChatHeaderBlock>
+            </ChatHeader>
+          </div>
+        </div>
+        <div className="h-screen overflow-y-auto px-5 py-4 w-full pt-[88px] pb-[150px]">
           <div className="flex flex-col items-center justify-end min-h-full">
             {isClient ? (
               <>
@@ -182,65 +186,68 @@ export default function Chat() {
             )}
           </div>
         </div>
-        <div className="w-full px-5 pt-5 pb-1 items-center flex justify-center">
-          <div className="max-w-2xl w-full">
-            <form id="chat-form" onSubmit={form.handleSubmit(onSubmit)}>
-              <FieldGroup>
-                <Controller
-                  name="message"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="chat-form-message" className="sr-only">
-                        Message
-                      </FieldLabel>
-                      <div className="relative h-13">
-                        <Input
-                          {...field}
-                          id="chat-form-message"
-                          className="h-15 pr-15 pl-5 bg-card rounded-[20px]"
-                          placeholder="Type your message here..."
-                          disabled={status === "streaming"}
-                          aria-invalid={fieldState.invalid}
-                          autoComplete="off"
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                              e.preventDefault();
-                              form.handleSubmit(onSubmit)();
-                            }
-                          }}
-                        />
-                        {(status == "ready" || status == "error") && (
-                          <Button
-                            className="absolute right-3 top-3 rounded-full"
-                            type="submit"
-                            disabled={!field.value.trim()}
-                            size="icon"
-                          >
-                            <ArrowUp className="size-4" />
-                          </Button>
-                        )}
-                        {(status == "streaming" || status == "submitted") && (
-                          <Button
-                            className="absolute right-2 top-2 rounded-full"
-                            size="icon"
-                            onClick={() => {
-                              stop();
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-linear-to-t from-background to-background/30 dark:bg-black overflow-visible pt-13">
+          <div className="w-full px-5 pt-5 pb-1 items-center flex justify-center relative overflow-visible">
+            <div className="message-fade-overlay" />
+            <div className="max-w-2xl w-full">
+              <form id="chat-form" onSubmit={form.handleSubmit(onSubmit)}>
+                <FieldGroup>
+                  <Controller
+                    name="message"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor="chat-form-message" className="sr-only">
+                          Message
+                        </FieldLabel>
+                        <div className="relative h-13">
+                          <Input
+                            {...field}
+                            id="chat-form-message"
+                            className="h-15 pr-15 pl-5 bg-card rounded-[20px]"
+                            placeholder="Type your message here..."
+                            disabled={status === "streaming"}
+                            aria-invalid={fieldState.invalid}
+                            autoComplete="off"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                form.handleSubmit(onSubmit)();
+                              }
                             }}
-                          >
-                            <Square className="size-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </Field>
-                  )}
-                />
-              </FieldGroup>
-            </form>
+                          />
+                          {(status == "ready" || status == "error") && (
+                            <Button
+                              className="absolute right-3 top-3 rounded-full"
+                              type="submit"
+                              disabled={!field.value.trim()}
+                              size="icon"
+                            >
+                              <ArrowUp className="size-4" />
+                            </Button>
+                          )}
+                          {(status == "streaming" || status == "submitted") && (
+                            <Button
+                              className="absolute right-2 top-2 rounded-full"
+                              size="icon"
+                              onClick={() => {
+                                stop();
+                              }}
+                            >
+                              <Square className="size-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </Field>
+                    )}
+                  />
+                </FieldGroup>
+              </form>
+            </div>
           </div>
-        </div>
-        <div className="w-full px-5 py-3 items-center flex justify-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Daniel M. Ringel&nbsp;<Link href="/terms" className="underline">Terms of Use</Link>
+          <div className="w-full px-5 py-3 items-center flex justify-center text-xs text-muted-foreground">
+            © {new Date().getFullYear()} Daniel M. Ringel&nbsp;<Link href="/terms" className="underline">Terms of Use</Link>
+          </div>
         </div>
       </main>
     </div >
