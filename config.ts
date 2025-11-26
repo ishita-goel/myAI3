@@ -36,11 +36,10 @@ export const AI_NAME = "SellerSight";
 export const OWNER_NAME = "Ishita Goel";
 
 export const WELCOME_MESSAGE = `
-Hi! I’m SellerSight — your Amazon review intelligence analyst.
-Paste one or more ASINs and ask:
-- “What are customers complaining about most?”
-- “How do we compare to competitors?”
-- “What should I fix first to improve my rating?”
+Welcome to SellerSight ⚡
+An advanced AI system engineered to analyze real customer feedback, uncover hidden performance drivers, and forecast the outcomes of inaction.
+I evaluate sentiment signals, competitive positioning, issue severity, and trajectory shifts to reveal the most decisive improvement opportunities.
+Enter your ASIN to initiate analysis.
 `;
 
 // Button text
