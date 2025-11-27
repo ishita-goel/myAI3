@@ -14,7 +14,7 @@ import { MessageWall } from "@/components/messages/message-wall";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UIMessage } from "ai";
 import { useEffect, useState, useRef } from "react";
-import { AI_NAME, OWNER_NAME, WELCOME_MESSAGE } from "@/config";
+import { AI_NAME, CLEAR_CHAT_TEXT, OWNER_NAME, WELCOME_MESSAGE } from "@/config";
 import Link from "next/link";
 
 // ===== Schema =====
@@ -80,13 +80,12 @@ export default function Chat() {
   }
 
   return (
-    // 👉 full-screen, aligned to top, nice beige bg
-    <div className="flex h-screen justify-center bg-[#FAF7F2] text-[#0F1111] font-sans">
-      {/* AWS-style panel, but wider for desktop */}
-      <main className="w-full flex justify-center items-start pt-8 px-4">
-        <div className="w-full max-w-4xl rounded-3xl shadow-xl overflow-hidden bg-white border border-gray-200">
+    <div className="flex h-screen items-center justify-center bg-[#FAF7F2] text-[#0F1111] font-sans">
+      {/* AWS-style floating panel */}
+      <main className="w-full flex justify-center px-3">
+        <div className="w-full max-w-md rounded-3xl shadow-xl overflow-hidden bg-white border border-gray-200">
           {/* Gradient header like AWS widget */}
-          <div className="bg-gradient-to-r from-[#4C6FFF] to-[#8A2EFF] px-6 py-4 text-white">
+          <div className="bg-gradient-to-r from-[#4C6FFF] to-[#8A2EFF] px-5 py-4 text-white">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8 border border-white/40">
@@ -94,9 +93,7 @@ export default function Chat() {
                   <AvatarFallback>SS</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <span className="text-sm font-semibold">
-                    Ask {AI_NAME}
-                  </span>
+                  <span className="text-sm font-semibold">Ask SellerSight</span>
                   <span className="text-[11px] opacity-90">
                     Get data-backed insights from Amazon reviews.
                   </span>
@@ -172,8 +169,8 @@ export default function Chat() {
 
           {/* Body: messages + subtle loader + footer */}
           <div className="flex flex-col bg-white">
-            {/* Suggested quick-start buttons (AWS-like) */}
-            <div className="px-6 pt-4 pb-2 space-y-2 text-xs text-[#374151] border-b border-gray-100">
+            {/* Suggested quick-start buttons (optional, AWS-like) */}
+            <div className="px-5 pt-4 pb-2 space-y-2 text-xs text-[#374151] border-b border-gray-100">
               <p className="font-medium text-[11px] uppercase tracking-wide text-[#6B7280]">
                 Want help getting started?
               </p>
@@ -197,7 +194,7 @@ export default function Chat() {
             </div>
 
             {/* Messages area */}
-            <div className="max-h-[540px] overflow-y-auto px-6 py-4">
+            <div className="max-h-[430px] overflow-y-auto px-5 py-4">
               {isClient ? (
                 <>
                   <MessageWall
@@ -220,7 +217,7 @@ export default function Chat() {
             </div>
 
             {/* Tiny footer like AWS widget */}
-            <div className="border-t border-gray-100 px-6 py-3 text-[11px] text-gray-500 flex justify-between items-center">
+            <div className="border-t border-gray-100 px-5 py-3 text-[11px] text-gray-500 flex justify-between items-center">
               <span>© {new Date().getFullYear()} {OWNER_NAME}</span>
               <span className="space-x-1">
                 <Link href="/terms" className="underline">
