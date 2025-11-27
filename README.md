@@ -1,4 +1,4 @@
-# SellerSight
+# MyAI3
 
 A customizable AI chatbot assistant built with Next.js, featuring web search capabilities, vector database integration, and content moderation. This repository provides a complete foundation for deploying your own AI assistant with minimal technical knowledge required.
 
