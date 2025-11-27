@@ -12,9 +12,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "MyAI3",
-  description: "MyAI3",
+export const metadata = {
+  title: "SellerSight — Amazon Review Intelligence",
+  description: "AI-powered review insights and competitor intelligence for Amazon sellers.",
 };
 
 export default function RootLayout({
