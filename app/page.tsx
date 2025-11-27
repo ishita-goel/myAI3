@@ -80,165 +80,164 @@ export default function Chat() {
   }
 
   return (
-    // full-screen page, centered horizontally, beige bg
-    <div className="flex min-h-screen justify-center bg-[#FAF7F2] text-[#0F1111] font-sans">
-      <main className="w-full flex justify-center items-start pt-8 px-4">
-        {/* FULL-WIDTH DESKTOP CARD (not tiny window) */}
-        <div className="w-full max-w-5xl flex flex-col rounded-3xl shadow-xl bg-white border border-gray-200 overflow-hidden">
-          {/* Top gradient header (no input here now) */}
-          <div className="bg-gradient-to-r from-[#4C6FFF] to-[#8A2EFF] px-6 py-4 text-white">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8 border border-white/40">
-                  <AvatarImage src="/sellersight-logo.png" />
-                  <AvatarFallback>SS</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold">
-                    Ask {AI_NAME}
-                  </span>
-                  <span className="text-[11px] opacity-90">
-                    Get data-backed insights from Amazon reviews.
-                  </span>
-                </div>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-xs text-white"
-                type="button"
-                onClick={clearChat}
-                title="Start new analysis"
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Middle: quick-start + messages, scrollable */}
-          <div className="flex-1 flex flex-col bg-white">
-            {/* Quick-start buttons */}
-            <div className="px-6 pt-4 pb-2 space-y-2 text-xs text-[#374151] border-b border-gray-100">
-              <p className="font-medium text-[11px] uppercase tracking-wide text-[#6B7280]">
-                Want help getting started?
-              </p>
-              <div className="flex flex-wrap gap-2 md:flex-nowrap md:flex-col">
-                <QuickStartButton
-                  label="Analyze my product's reviews"
-                  prompt="Help me analyze reviews for my Amazon product and show top complaints and strengths."
-                  onClick={(text) => form.setValue("message", text)}
-                />
-                <QuickStartButton
-                  label="Compare with a competitor ASIN"
-                  prompt="Compare my ASIN to a close competitor based on Amazon reviews and highlight gaps."
-                  onClick={(text) => form.setValue("message", text)}
-                />
-                <QuickStartButton
-                  label="Find key issues hurting my rating"
-                  prompt="From recent reviews, identify the top issues hurting my star rating and how to fix them."
-                  onClick={(text) => form.setValue("message", text)}
-                />
-              </div>
-            </div>
-
-            {/* Messages area — takes remaining height, scrolls */}
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-              {isClient ? (
-                <>
-                  <MessageWall
-                    messages={messages}
-                    status={status}
-                    durations={durations}
-                    onDurationChange={handleDurationChange}
-                  />
-                  {status === "submitted" && (
-                    <div className="flex justify-start max-w-3xl w-full mt-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="flex justify-center w-full py-6">
-                  <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                </div>
-              )}
-            </div>
-
-            {/* Bottom: INPUT BAR AT THE END */}
-            <div className="border-t border-gray-200 px-6 py-3 bg-white">
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="w-full"
-                id="chat-form"
-              >
-                <FieldGroup>
-                  <Controller
-                    name="message"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel className="sr-only">Message</FieldLabel>
-                        <div className="relative flex items-center">
-                          <Input
-                            {...field}
-                            placeholder="Ask a question about your ASIN, reviews, or competitors…"
-                            className="h-12 w-full rounded-full border border-gray-300 bg-white text-sm text-[#0F1111] pl-4 pr-12 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
-                            disabled={status === "streaming"}
-                            autoComplete="off"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault();
-                                form.handleSubmit(onSubmit)();
-                              }
-                            }}
-                          />
-                          {(status === "ready" || status === "error") && (
-                            <Button
-                              type="submit"
-                              disabled={!field.value.trim()}
-                              size="icon"
-                              className="absolute right-1 h-9 w-9 rounded-full bg-[#232F3E] hover:bg-[#111827] text-white shadow"
-                            >
-                              <ArrowUp className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {(status === "streaming" || status === "submitted") && (
-                            <Button
-                              type="button"
-                              size="icon"
-                              onClick={() => stop()}
-                              className="absolute right-1 h-9 w-9 rounded-full bg-gray-200 text-[#0F1111]"
-                            >
-                              <Square className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </Field>
-                    )}
-                  />
-                </FieldGroup>
-              </form>
-            </div>
-
-            {/* Footer inside card */}
-            <div className="border-t border-gray-100 px-6 py-3 text-[11px] text-gray-500 flex justify-between items-center">
-              <span>
-                © {new Date().getFullYear()} {OWNER_NAME}
-              </span>
-              <span className="space-x-1">
-                <Link href="/terms" className="underline">
-                  Terms
-                </Link>
-                <span>·</span>
-                <Link href="https://ringel.ai" className="underline">
-                  Powered by Ringel.AI
-                </Link>
+    // FULL-PAGE LAYOUT (no inner window)
+    <div className="flex min-h-screen flex-col bg-[#FAF7F2] text-[#0F1111] font-sans">
+      {/* Top gradient header across full width */}
+      <header className="bg-gradient-to-r from-[#4C6FFF] to-[#8A2EFF] text-white">
+        <div className="max-w-5xl mx-auto w-full px-6 py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8 border border-white/40">
+              <AvatarImage src="/sellersight-logo.png" />
+              <AvatarFallback>SS</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">Ask {AI_NAME}</span>
+              <span className="text-[11px] opacity-90">
+                Get data-backed insights from Amazon reviews.
               </span>
             </div>
           </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-xs text-white"
+            type="button"
+            onClick={clearChat}
+            title="Start new analysis"
+          >
+            <Plus className="h-3 w-3" />
+          </Button>
         </div>
-      </main>
+      </header>
+
+      {/* Middle area (quick-start + messages) fills remaining height */}
+      <div className="flex-1 flex flex-col bg-white">
+        {/* Quick-start row */}
+        <section className="border-b border-gray-200">
+          <div className="max-w-5xl mx-auto w-full px-6 pt-4 pb-2 text-xs text-[#374151]">
+            <p className="font-medium text-[11px] uppercase tracking-wide text-[#6B7280] mb-2">
+              Want help getting started?
+            </p>
+            <div className="flex flex-col gap-2 md:flex-row md:flex-wrap">
+              <QuickStartButton
+                label="Analyze my product's reviews"
+                prompt="Help me analyze reviews for my Amazon product and show top complaints and strengths."
+                onClick={(text) => form.setValue("message", text)}
+              />
+              <QuickStartButton
+                label="Compare with a competitor ASIN"
+                prompt="Compare my ASIN to a close competitor based on Amazon reviews and highlight gaps."
+                onClick={(text) => form.setValue("message", text)}
+              />
+              <QuickStartButton
+                label="Find key issues hurting my rating"
+                prompt="From recent reviews, identify the top issues hurting my star rating and how to fix them."
+                onClick={(text) => form.setValue("message", text)}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Messages area (scrollable) */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-5xl mx-auto w-full px-6 py-4">
+            {isClient ? (
+              <>
+                <MessageWall
+                  messages={messages}
+                  status={status}
+                  durations={durations}
+                  onDurationChange={handleDurationChange}
+                />
+                {status === "submitted" && (
+                  <div className="flex justify-start max-w-3xl w-full mt-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex justify-center w-full py-6">
+                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+              </div>
+            )}
+          </div>
+        </main>
+
+        {/* INPUT BAR STUCK AT BOTTOM */}
+        <section className="border-t border-gray-200 bg-white">
+          <div className="max-w-5xl mx-auto w-full px-6 py-3">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              id="chat-form"
+              className="w-full"
+            >
+              <FieldGroup>
+                <Controller
+                  name="message"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel className="sr-only">Message</FieldLabel>
+                      <div className="relative flex items-center">
+                        <Input
+                          {...field}
+                          placeholder="Ask a question about your ASIN, reviews, or competitors…"
+                          className="h-12 w-full rounded-full border border-gray-300 bg-white text-sm text-[#0F1111] pl-4 pr-12 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                          disabled={status === "streaming"}
+                          autoComplete="off"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              form.handleSubmit(onSubmit)();
+                            }
+                          }}
+                        />
+                        {(status === "ready" || status === "error") && (
+                          <Button
+                            type="submit"
+                            disabled={!field.value.trim()}
+                            size="icon"
+                            className="absolute right-1 h-9 w-9 rounded-full bg-[#232F3E] hover:bg-[#111827] text-white shadow"
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {(status === "streaming" || status === "submitted") && (
+                          <Button
+                            type="button"
+                            size="icon"
+                            onClick={() => stop()}
+                            className="absolute right-1 h-9 w-9 rounded-full bg-gray-200 text-[#0F1111]"
+                          >
+                            <Square className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </Field>
+                  )}
+                />
+              </FieldGroup>
+            </form>
+          </div>
+        </section>
+
+        {/* Footer across bottom */}
+        <footer className="border-t border-gray-100 bg-white">
+          <div className="max-w-5xl mx-auto w-full px-6 py-3 text-[11px] text-gray-500 flex justify-between items-center">
+            <span>© {new Date().getFullYear()} {OWNER_NAME}</span>
+            <span className="space-x-1">
+              <Link href="/terms" className="underline">
+                Terms
+              </Link>
+              <span>·</span>
+              <Link href="https://ringel.ai" className="underline">
+                Powered by Ringel.AI
+              </Link>
+            </span>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }
