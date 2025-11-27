@@ -1,31 +1,26 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import * as z from "zod";
+import { useChat } from "@ai-sdk/react";
+import { UIMessage } from "ai";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useChat } from "@ai-sdk/react";
-import { ArrowUp, Loader2, Plus, Square, MessageCircle } from "lucide-react";
-import { MessageWall } from "@/components/messages/message-wall";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UIMessage } from "ai";
-import { useEffect, useState, useRef } from "react";
-import { AI_NAME, OWNER_NAME, WELCOME_MESSAGE } from "@/config";
-import Link from "next/link";
+import { MessageWall } from "@/components/messages/message-wall";
 
-// ===== Schema =====
+import { ArrowUp, Loader2, Plus, Square, MessageCircle } from "lucide-react";
+import { AI_NAME, OWNER_NAME, WELCOME_MESSAGE } from "@/config";
+
 const formSchema = z.object({
-  message: z
-    .string()
-    .min(1, "Message cannot be empty.")
-    .max(2000, "Message must be at most 2000 characters."),
+  message: z.string().min(1, "Please enter a message."),
 });
 
-// 🔹 Helper to build the welcome message
 const makeWelcomeMessage = (): UIMessage => ({
   id: `welcome-${Date.now()}`,
   role: "assistant",
@@ -35,6 +30,7 @@ const makeWelcomeMessage = (): UIMessage => ({
 export default function Chat() {
   const [isClient, setIsClient] = useState(false);
   const [durations, setDurations] = useState<Record<string, number>>({});
+
   const welcomeMessageShownRef = useRef(false);
 
   const { messages, sendMessage, status, stop, setMessages } = useChat();
@@ -43,13 +39,14 @@ export default function Chat() {
     setIsClient(true);
   }, []);
 
-  // Show welcome message once per load
+  // Show welcome message once on first load
   useEffect(() => {
-    if (isClient && !welcomeMessageShownRef.current) {
+    if (!isClient) return;
+    if (!welcomeMessageShownRef.current && messages.length === 0) {
       setMessages([makeWelcomeMessage()]);
       welcomeMessageShownRef.current = true;
     }
-  }, [isClient, setMessages]);
+  }, [isClient, messages.length, setMessages]);
 
   const handleDurationChange = (key: string, duration: number) => {
     setDurations((prev) => ({ ...prev, [key]: duration }));
@@ -57,22 +54,26 @@ export default function Chat() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { message: "" },
+    defaultValues: {
+      message: "",
+    },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    sendMessage({ text: data.message });
-    form.reset();
-  }
-
-  function clearChat() {
+  const clearChat = () => {
     setMessages([makeWelcomeMessage()]);
     setDurations({});
-    toast.success("New analysis started");
-  }
+    welcomeMessageShownRef.current = true;
+    form.reset({ message: "" });
+  };
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const text = data.message.trim();
+    if (!text) return;
+    await sendMessage(text);
+    form.reset({ message: "" });
+  };
 
   return (
-    // FULL-SCREEN APP: sidebar + main chat pane
     <div className="flex h-screen bg-[#FAF7F2] text-[#0F1111] font-sans">
       {/* ============= LEFT SIDEBAR (GPT-style) ============= */}
       <aside className="hidden md:flex w-64 flex-col bg-[#111827] text-white">
@@ -95,6 +96,7 @@ export default function Chat() {
         {/* New analysis button */}
         <div className="px-4 pt-4">
           <Button
+            type="button"
             onClick={clearChat}
             className="w-full justify-start gap-2 rounded-full bg-white text-[#111827] hover:bg-gray-100 text-xs font-medium"
           >
@@ -108,14 +110,13 @@ export default function Chat() {
           <p className="text-[11px] uppercase tracking-wide text-white/60 mb-2">
             Recent sessions
           </p>
-          <button
-            className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs bg-white/10 hover:bg-white/15 text-white"
-          >
+          <button className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs bg-white/10 hover:bg-white/15 text-white">
             <MessageCircle className="h-3 w-3 opacity-80" />
             <span className="truncate">Current analysis</span>
           </button>
           <p className="mt-4 text-[11px] text-white/50">
-            (Multi-session history can be added later — this is the active workspace.)
+            (Multi-session history can be added later — this is the active
+            workspace.)
           </p>
         </div>
 
@@ -127,11 +128,11 @@ export default function Chat() {
 
       {/* ============= MAIN CHAT PANEL ============= */}
       <div className="flex-1 flex flex-col bg-white">
-        {/* Top gradient header across main area */}
+        {/* Top gradient header */}
         <header className="bg-gradient-to-r from-[#4C6FFF] to-[#8A2EFF] text-white">
           <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
             <div className="flex items-center gap-3">
-              {/* mobile logo when sidebar hidden */}
+              {/* Mobile logo when sidebar hidden */}
               <div className="md:hidden">
                 <Avatar className="h-8 w-8 border border-white/40">
                   <AvatarImage src="/sellersight-logo.png" />
@@ -143,14 +144,15 @@ export default function Chat() {
                   {AI_NAME} · Review Intelligence Agent
                 </span>
                 <span className="text-[11px] opacity-90">
-                  Analyze ASINs, competitors, and review patterns with one AI workspace.
+                  Analyze ASINs, competitors, and review patterns with one AI
+                  workspace.
                 </span>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Quick-start suggestions (like GPT’s prompt cards) */}
+        {/* Quick-start suggestions */}
         <section className="border-b border-gray-200 bg-[#F9FAFB]">
           <div className="mx-auto w-full max-w-6xl px-6 pt-4 pb-3 text-xs text-[#374151]">
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-[#6B7280]">
@@ -205,9 +207,9 @@ export default function Chat() {
         <section className="border-t border-gray-200 bg-white">
           <div className="mx-auto w-full max-w-6xl px-6 py-3">
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
               id="chat-form"
               className="w-full"
+              onSubmit={form.handleSubmit(onSubmit)}
             >
               <FieldGroup>
                 <Controller
@@ -224,30 +226,34 @@ export default function Chat() {
                           disabled={status === "streaming"}
                           autoComplete="off"
                           onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
+                            if (
+                              e.key === "Enter" &&
+                              !e.shiftKey &&
+                              !e.nativeEvent.isComposing
+                            ) 
+                            {
                               e.preventDefault();
                               form.handleSubmit(onSubmit)();
                             }
                           }}
                         />
-                        {(status === "ready" || status === "error") && (
-                          <Button
-                            type="submit"
-                            disabled={!field.value.trim()}
-                            size="icon"
-                            className="absolute right-1 h-9 w-9 rounded-full bg-[#232F3E] text-white shadow hover:bg-[#111827]"
-                          >
-                            <ArrowUp className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {(status === "streaming" || status === "submitted") && (
+                        {status === "streaming" ? (
                           <Button
                             type="button"
                             size="icon"
-                            onClick={() => stop()}
                             className="absolute right-1 h-9 w-9 rounded-full bg-gray-200 text-[#0F1111]"
+                            onClick={() => stop()}
                           >
                             <Square className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <Button
+                            type="submit"
+                            size="icon"
+                            disabled={!field.value.trim()}
+                            className="absolute right-1 h-9 w-9 rounded-full bg-[#232F3E] text-white shadow hover:bg-[#111827]"
+                          >
+                            <ArrowUp className="h-4 w-4" />
                           </Button>
                         )}
                       </div>
@@ -259,7 +265,7 @@ export default function Chat() {
           </div>
         </section>
 
-        {/* Footer (subtle, like product footer) */}
+        {/* Footer */}
         <footer className="border-t border-gray-100 bg-white">
           <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3 text-[11px] text-gray-500">
             <span>© {new Date().getFullYear()} {OWNER_NAME}</span>
@@ -287,7 +293,7 @@ function QuickStartButton({
 }: {
   label: string;
   prompt: string;
-  onClick: (prompt: string) => void;
+  onClick: (text: string) => void;
 }) {
   return (
     <button
